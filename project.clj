@@ -1,4 +1,4 @@
-(defproject michaelblume/honeysql "0.4.4"
+(defproject michaelblume/honeysql "0.4.5-SNAPSHOT"
   :description "SQL as Clojure data structures"
   :url http://www.github.com/MichaelBlume/honeysql
   :license {:name "Eclipse Public License"
