@@ -3,6 +3,8 @@
 SQL as Clojure data structures. Build queries programmatically -- even at runtime -- without having to bash strings together.
 
 ## Leiningen Coordinate
+[![Build Status](https://travis-ci.org/MichaelBlume/honeysql.svg?branch=master)](https://travis-ci.org/MichaelBlume/honeysql)
+[![Dependencies Status](http://jarkeeper.com/MichaelBlume/honeysql/status.svg)](http://jarkeeper.com/MichaelBlume/honeysql)
 
 ```clj
 [michaelblume/honeysql "0.4.4"]
