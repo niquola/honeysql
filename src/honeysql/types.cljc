@@ -7,8 +7,8 @@
   (equals [this x]
     (cond (identical? this x) true
           (instance? SqlCall x) (let [^SqlCall x x]
-                                  (and (= name (.name x))
-                                       (= args (.args x))))
+                                  (and (= name (.-name x))
+                                       (= args (.-args x))))
           :else false))
   clojure.lang.IObj
   (meta [_] _meta)
@@ -24,7 +24,7 @@
   (apply (resolve `call) form))
 
 (defmethod print-method SqlCall [^SqlCall o ^java.io.Writer w]
-  (.write w (str "#sql/call " (pr-str (into [(.name o)] (.args o))))))
+  (.write w (str "#sql/call " (pr-str (into [(.-name o)] (.-args o))))))
 
 (defmethod print-dup SqlCall [o w]
   (print-method o w))
@@ -34,7 +34,7 @@
 (deftype SqlRaw [s _meta]
   Object
   (hashCode [this] (hash-combine (hash (class this)) (hash s)))
-  (equals [_ x] (and (instance? SqlRaw x) (= s (.s ^SqlRaw x))))
+  (equals [_ x] (and (instance? SqlRaw x) (= s (.-s ^SqlRaw x))))
   clojure.lang.IObj
   (meta [_] _meta)
   (withMeta [_ m] (SqlRaw. s m)))
@@ -49,7 +49,7 @@
   ((resolve `raw) form))
 
 (defmethod print-method SqlRaw [^SqlRaw o ^java.io.Writer w]
-  (.write w (str "#sql/raw " (pr-str (.s o)))))
+  (.write w (str "#sql/raw " (pr-str (.-s o)))))
 
 (defmethod print-dup SqlRaw [o w]
   (print-method o w))
@@ -59,7 +59,7 @@
 (deftype SqlParam [name _meta]
   Object
   (hashCode [this] (hash-combine (hash (class this)) (hash (name name))))
-  (equals [_ x] (and (instance? SqlParam x) (= name (.name ^SqlParam x))))
+  (equals [_ x] (and (instance? SqlParam x) (= name (.-name ^SqlParam x))))
   clojure.lang.IObj
   (meta [_] _meta)
   (withMeta [_ m] (SqlParam. name m)))
@@ -70,14 +70,14 @@
   (SqlParam. name nil))
 
 (defn param-name [^SqlParam param]
-  (.name param))
+  (.-name param))
 
 (defn read-sql-param [form]
   ;; late bind, as above
   ((resolve `param) form))
 
 (defmethod print-method SqlParam [^SqlParam o ^java.io.Writer w]
-  (.write w (str "#sql/param " (pr-str (.name o)))))
+  (.write w (str "#sql/param " (pr-str (.-name o)))))
 
 (defmethod print-dup SqlParam [o w]
   (print-method o w))
@@ -87,7 +87,7 @@
 (deftype SqlArray [values _meta]
   Object
   (hashCode [this] (hash-combine (hash (class this)) (hash values)))
-  (equals [_ x] (and (instance? SqlArray x) (= values (.values ^SqlArray x))))
+  (equals [_ x] (and (instance? SqlArray x) (= values (.-values ^SqlArray x))))
   clojure.lang.IObj
   (meta [_] _meta)
   (withMeta [_ m] (SqlArray. values m)))
@@ -98,14 +98,14 @@
   (SqlArray. values nil))
 
 (defn array-vals [^SqlArray a]
-  (.values a))
+  (.-values a))
 
 (defn read-sql-array [form]
   ;; late bind, as above
   ((resolve `array) form))
 
 (defmethod print-method SqlArray [^SqlArray a ^java.io.Writer w]
-  (.write w (str "#sql/array " (pr-str (.values a)))))
+  (.write w (str "#sql/array " (pr-str (.-values a)))))
 
 (defmethod print-dup SqlArray [a w]
   (print-method a w))
