@@ -295,7 +295,36 @@
 
 (declare -format-clause)
 
+(defn map->sql [m]
+  (let [clause-ops (sort-clauses (keys m))
+        sql-str (binding [*subquery?* true
+                          *fn-context?* false]
+                  (space-join
+                   (map (comp #(-format-clause % m) #(find m %))
+                        clause-ops)))]
+    (if *subquery?*
+      (paren-wrap sql-str)
+      sql-str)))
+
+(defn seq->sql [x]
+  (if *fn-context?*
+    ;; list argument in fn call
+    (paren-wrap (comma-join (map to-sql x)))
+    ;; alias
+    (str (to-sql (first x))
+         ; Omit AS in FROM, JOIN, etc. - Oracle doesn't allow it
+         (if (= :select *clause*)
+           " AS "
+           " ")
+         (if (string? (second x))
+           (quote-identifier (second x))
+           (to-sql (second x))))))
+
 (extend-protocol ToSql
+  #?(:clj clojure.lang.IPersistentMap
+     :cljs cljs.core/PersistentArrayMap)
+  (to-sql [x]
+    (map->sql x))
   #?(:clj clojure.lang.Keyword
      :cljs cljs.core/Keyword)
   (to-sql [x]
@@ -315,20 +344,9 @@
      :cljs boolean)
   (to-sql [x]
     (if x "TRUE" "FALSE"))
-  clojure.lang.Sequential
-  (to-sql [x]
-    (if *fn-context?*
-      ;; list argument in fn call
-      (paren-wrap (comma-join (map to-sql x)))
-      ;; alias
-      (str (to-sql (first x))
-           ; Omit AS in FROM, JOIN, etc. - Oracle doesn't allow it
-           (if (= :select *clause*)
-             " AS "
-             " ")
-           (if (string? (second x))
-             (quote-identifier (second x))
-             (to-sql (second x))))))
+  #?@(:clj
+       [clojure.lang.Sequential
+        (to-sql [x] (seq->sql x))])
   SqlCall
   (to-sql [x]
     (binding [*fn-context?* true]
@@ -337,17 +355,6 @@
          (apply fn-handler fn-name (.-args x)))))
   SqlRaw
   (to-sql [x] (.-s x))
-  clojure.lang.IPersistentMap
-  (to-sql [x]
-    (let [clause-ops (sort-clauses (keys x))
-          sql-str (binding [*subquery?* true
-                            *fn-context?* false]
-                    (space-join
-                     (map (comp #(-format-clause % x) #(find x %))
-                          clause-ops)))]
-      (if *subquery?*
-        (paren-wrap sql-str)
-        sql-str)))
   #?(:clj clojure.lang.IPersistentSet
      :cljs cljs.core/PersistentHashSet)
   (to-sql [x]
@@ -367,7 +374,16 @@
     (str "ARRAY[" (comma-join (map to-sql (.-values x))) "]"))
   #?(:clj Object :cljs default)
   (to-sql [x]
-    (add-anon-param x)))
+    #?(:clj (add-anon-param x)
+       :cljs (if (satisfies? cljs.core/ISequential x)
+               (seq->sql x)
+               (add-anon-param x)))))
+
+#?(:cljs
+    (extend-protocol ToSql
+      cljs.core/PersistentHashMap
+      (to-sql [x]
+        (map->sql x))))
 
 (defn sqlable? [x]
   (satisfies? ToSql x))
