@@ -10,9 +10,10 @@
                                   (and (= name (.-name x))
                                        (= args (.-args x))))
           :else false))
-  clojure.lang.IObj
-  (meta [_] _meta)
-  (withMeta [_ m] (SqlCall. name args m)))
+  #?(:clj clojure.lang.IObj :cljs IMeta)
+  (#?(:clj meta :cljs -meta) [_] _meta)
+  #?(:cljs IWithMeta)
+  (#?(:clj withMeta :cljs -with-meta) [_ m] (SqlCall. name args m)))
 
 (defn call
   "Represents a SQL function call. Name should be a keyword."
@@ -33,11 +34,13 @@
 
 (deftype SqlRaw [s _meta]
   Object
-  (hashCode [this] (hash-combine (hash (class this)) (hash s)))
+  #?(:clj (hashCode [this]
+            (hash-combine (hash (class this)) (hash s))))
   (equals [_ x] (and (instance? SqlRaw x) (= s (.-s ^SqlRaw x))))
-  clojure.lang.IObj
-  (meta [_] _meta)
-  (withMeta [_ m] (SqlRaw. s m)))
+  #?(:clj clojure.lang.IObj :cljs IMeta)
+  (#?(:clj meta :cljs -meta) [_] _meta)
+  #?(:cljs IWithMeta)
+  (#?(:clj withMeta :cljs -with-meta) [_ m] (SqlRaw. s m)))
 
 (defn raw
   "Represents a raw SQL string"
@@ -58,11 +61,13 @@
 
 (deftype SqlParam [name _meta]
   Object
-  (hashCode [this] (hash-combine (hash (class this)) (hash (name name))))
+  #?(:clj (hashCode [this]
+            (hash-combine (hash (class this)) (hash (name name)))))
   (equals [_ x] (and (instance? SqlParam x) (= name (.-name ^SqlParam x))))
-  clojure.lang.IObj
-  (meta [_] _meta)
-  (withMeta [_ m] (SqlParam. name m)))
+  #?(:clj clojure.lang.IObj :cljs IMeta)
+  (#?(:clj meta :cljs -meta) [_] _meta)
+  #?(:cljs IWithMeta)
+  (#?(:clj withMeta :cljs -with-meta) [_ m] (SqlParam. name m)))
 
 (defn param
   "Represents a SQL parameter which can be filled in later"
@@ -86,11 +91,13 @@
 
 (deftype SqlArray [values _meta]
   Object
-  (hashCode [this] (hash-combine (hash (class this)) (hash values)))
+  #?(:clj (hashCode [this]
+            (hash-combine (hash (class this)) (hash values))))
   (equals [_ x] (and (instance? SqlArray x) (= values (.-values ^SqlArray x))))
-  clojure.lang.IObj
-  (meta [_] _meta)
-  (withMeta [_ m] (SqlArray. values m)))
+  #?(:clj clojure.lang.IObj :cljs IMeta)
+  (#?(:clj meta :cljs -meta) [_] _meta)
+  #?(:cljs IWithMeta)
+  (#?(:clj withMeta :cljs -with-meta) [_ m] (SqlArray. values m)))
 
 (defn array
   "Represents a SQL array."
