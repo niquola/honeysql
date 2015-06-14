@@ -4,7 +4,8 @@
 (deftype SqlCall [name args _meta]
   Object
   (hashCode [_] (hash-combine (hash name) (hash args)))
-  (equals [this x]
+  #?(:cljs cljs.core/IEquiv)
+  (#?(:clj equals :cljs -equiv) [this x]
     (cond (identical? this x) true
           (instance? SqlCall x) (let [^SqlCall x x]
                                   (and (= name (.-name x))
@@ -30,7 +31,8 @@
   Object
   #?(:clj (hashCode [this]
             (hash-combine (hash (class this)) (hash s))))
-  (equals [_ x] (and (instance? SqlRaw x) (= s (.-s ^SqlRaw x))))
+  #?(:cljs cljs.core/IEquiv)
+  (#?(:clj equals :cljs -equiv) [_ x] (and (instance? SqlRaw x) (= s (.-s ^SqlRaw x))))
   #?(:clj clojure.lang.IObj :cljs IMeta)
   (#?(:clj meta :cljs -meta) [_] _meta)
   #?(:cljs IWithMeta)
@@ -51,7 +53,8 @@
   Object
   #?(:clj (hashCode [this]
             (hash-combine (hash (class this)) (hash (name name)))))
-  (equals [_ x] (and (instance? SqlParam x) (= name (.-name ^SqlParam x))))
+  #?(:cljs cljs.core/IEquiv)
+  (#?(:clj equals :cljs -equiv) [_ x] (and (instance? SqlParam x) (= name (.-name ^SqlParam x))))
   #?(:clj clojure.lang.IObj :cljs IMeta)
   (#?(:clj meta :cljs -meta) [_] _meta)
   #?(:cljs IWithMeta)
@@ -75,7 +78,9 @@
   Object
   #?(:clj (hashCode [this]
             (hash-combine (hash (class this)) (hash values))))
-  (equals [_ x] (and (instance? SqlArray x) (= values (.-values ^SqlArray x))))
+  #?(:cljs cljs.core/IEquiv)
+  (#?(:clj equals :cljs -equiv) [_ x]
+    (and (instance? SqlArray x) (= values (.-values ^SqlArray x))))
   #?(:clj clojure.lang.IObj :cljs IMeta)
   (#?(:clj meta :cljs -meta) [_] _meta)
   #?(:cljs IWithMeta)
