@@ -294,7 +294,8 @@
 (declare -format-clause)
 
 (extend-protocol ToSql
-  clojure.lang.Keyword
+  #?(:clj clojure.lang.Keyword
+     :cljs cljs.core/Keyword)
   (to-sql [x]
     (let [s (name x)]
       (case (.charAt s 0)
@@ -302,11 +303,12 @@
              (to-sql (apply call (map keyword call-args))))
         \? (to-sql (param (keyword (subs s 1))))
         (quote-identifier x))))
-  clojure.lang.Symbol
+  #?(:clj clojure.lang.Symbol
+     :cljs cljs.core/Symbol)
   (to-sql [x] (quote-identifier x))
-  java.lang.Number
+  #?(:clj Number :cljs number)
   (to-sql [x] (str x))
-  java.lang.Boolean
+  #?(:clj Boolean :cljs boolean)
   (to-sql [x]
     (if x "TRUE" "FALSE"))
   clojure.lang.Sequential
@@ -342,7 +344,8 @@
       (if *subquery?*
         (paren-wrap sql-str)
         sql-str)))
-  clojure.lang.IPersistentSet
+  #?(:clj clojure.lang.IPersistentSet
+     :cljs cljs.core/PersistentHashSet)
   (to-sql [x]
     (to-sql (seq x)))
   nil
@@ -358,7 +361,7 @@
   SqlArray
   (to-sql [x]
     (str "ARRAY[" (comma-join (map to-sql (.-values x))) "]"))
-  Object
+  #?(:clj Object :cljs default)
   (to-sql [x]
     (add-anon-param x)))
 
