@@ -243,10 +243,20 @@
 (defprotocol Parameterizable
   (to-params [value pname]))
 
+(defn to-params-seq [s pname]
+  (paren-wrap (comma-join (mapv #(to-params % pname) s))))
+
+(defn to-params-default [value pname]
+  (swap! *params* conj value)
+  (swap! *param-names* conj pname)
+  (*parameterizer*))
+
 (extend-protocol Parameterizable
-  clojure.lang.Sequential
-  (to-params [value pname]
-    (paren-wrap (comma-join (mapv #(to-params % pname) value))))
+  #?@(:clj
+       [clojure.lang.Sequential
+
+        (to-params [value pname]
+          (to-params-seq value pname))])
   clojure.lang.IPersistentSet
   (to-params [value pname]
     (to-params (seq value) pname))
@@ -255,11 +265,14 @@
     (swap! *params* conj value)
     (swap! *param-names* conj pname)
     (*parameterizer*))
-  java.lang.Object
+  #?(:clj Object :cljs default)
   (to-params [value pname]
-    (swap! *params* conj value)
-    (swap! *param-names* conj pname)
-    (*parameterizer*)))
+    #?(:clj
+        (to-params-default value pname)
+       :cljs
+        (if (sequential? value)
+          (to-params-seq value pname)
+          (to-params-default value pname)))))
 
 (defn add-param [pname pval]
   (to-params pval pname))
