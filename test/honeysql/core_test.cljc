@@ -6,7 +6,8 @@
             [honeysql.helpers :refer [select modifiers from join left-join
                                       right-join full-join where group having
                                       order-by limit offset values columns
-                                      insert-into]]))
+                                      insert-into]]
+            honeysql.format-test))
 
 ;; TODO: more tests
 
@@ -131,3 +132,5 @@
                             :from [:customers]
                             :where [:in :id :?ids]}
                            {:ids values})))))))
+
+#?(:cljs (cljs.test/run-all-tests))
