@@ -257,7 +257,8 @@
 
         (to-params [value pname]
           (to-params-seq value pname))])
-  clojure.lang.IPersistentSet
+  #?(:clj clojure.lang.IPersistentSet
+     :cljs cljs.core/PersistentHashSet)
   (to-params [value pname]
     (to-params (seq value) pname))
   nil
