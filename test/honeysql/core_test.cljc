@@ -1,8 +1,12 @@
 (ns honeysql.core-test
   (:refer-clojure :exclude [format update])
-  (:require [clojure.test :refer [deftest testing is]]
+  (:require [#?@(:clj [clojure.test :refer]
+                 :cljs [cljs.test :refer-macros]) [deftest testing is]]
             [honeysql.core :as sql]
-            [honeysql.helpers :refer :all]))
+            [honeysql.helpers :refer [select modifiers from join left-join
+                                      right-join full-join where group having
+                                      order-by limit offset values columns
+                                      insert-into]]))
 
 ;; TODO: more tests
 
