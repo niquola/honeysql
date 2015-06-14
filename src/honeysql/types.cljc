@@ -2,8 +2,8 @@
   (:refer-clojure :exclude [array]))
 
 (deftype SqlCall [name args _meta]
-  Object
-  (hashCode [_] (hash-combine (hash name) (hash args)))
+  #?(:clj Object :cljs cljs.core/IHash)
+  (#?(:clj hashCode :cljs -hash) [_] (hash-combine (hash name) (hash args)))
   #?(:cljs cljs.core/IEquiv)
   (#?(:clj equals :cljs -equiv) [this x]
     (cond (identical? this x) true
