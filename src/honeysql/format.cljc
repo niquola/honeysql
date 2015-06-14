@@ -201,7 +201,10 @@
 
 (defn sort-clauses [clauses]
   (let [m @clause-store]
-    (sort-by #(m % Long/MAX_VALUE) clauses)))
+    (sort-by
+      (fn [c]
+        (m c #?(:clj Long/MAX_VALUE :cljs js/Number.MAX_VALUE)))
+      clauses)))
 
 (defn format
   "Takes a SQL map and optional input parameters and returns a vector
