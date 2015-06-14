@@ -1,7 +1,9 @@
 (ns honeysql.format-test
   (:refer-clojure :exclude [format])
-  (:require [clojure.test :refer [deftest testing is are]]
-            [honeysql.format :refer :all]))
+  (:require [#?@(:clj [clojure.test :refer]
+                 :cljs [cljs.test :refer-macros]) [deftest testing is are]]
+            [honeysql.types :as sql]
+            [honeysql.format :refer [quote-identifier format-clause format]]))
 
 (deftest test-quote
   (are
