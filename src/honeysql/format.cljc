@@ -1,8 +1,9 @@
 (ns honeysql.format
   (:refer-clojure :exclude [format])
-  (:require [honeysql.types :refer [call raw param param-name]]
+  (:require [honeysql.types :refer [call raw param param-name
+                                    #?@(:cljs [SqlCall SqlRaw SqlParam SqlArray])]]
             [clojure.string :as string])
-  (:import [honeysql.types SqlCall SqlRaw SqlParam SqlArray]))
+  #?(:clj (:import [honeysql.types SqlCall SqlRaw SqlParam SqlArray])))
 
 ;;(set! *warn-on-reflection* true)
 
