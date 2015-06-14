@@ -1,4 +1,5 @@
-(ns honeysql.types)
+(ns honeysql.types
+  (:refer-clojure :exclude [array]))
 
 (deftype SqlCall [name args _meta]
   Object
